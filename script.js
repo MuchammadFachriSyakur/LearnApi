@@ -124,35 +124,31 @@ const inputKeyword = document.querySelector(".input-keyword");
 const searchButton = document.querySelector(".search-button");
 
 searchButton.addEventListener("click", (e) => {
-  searchDataFilm(
-    "http://www.omdbapi.com/?apikey=b3236382&s=" + inputKeyword.value,
-    (results) => {
-      const dataFilm = JSON.parse(results).Search;
+  const valueInputKeyword =
+    "http://www.omdbapi.com/?apikey=b3236382&s=" + inputKeyword.value;
+  fetch(valueInputKeyword)
+    .then((responsens) => responsens.json())
+    .then((m) => {
+      const movies = m.Search;
       let card = "";
-      dataFilm.forEach((e) => {
+      movies.forEach((e) => {
         card += cetakDataFilm("cetakFilm", e);
-        document.querySelector(".container .cards").innerHTML = card;
+      });
+      document.querySelector(".container .cards").innerHTML = card;
 
-        const allButtonsDetailFilm =
-          document.querySelectorAll(".modalDetailButton");
-        allButtonsDetailFilm.forEach((e) => {
-          e.addEventListener("click", (e) => {
-            const imdbID = e.target.getAttribute("data-imdbId");
-            getOmdbIDFilm(
-              "http://www.omdbapi.com/?apikey=b3236382&i=" + imdbID,
-              (results) => {
-                const result = JSON.parse(results);
-                const movieDetail = cetakDataFilm("cetakDetailFilm", result);
-                document.querySelector(".modal-body").innerHTML = movieDetail;
-              },
-              () => {}
-            );
-          });
+      // Fitur melihat detail movie
+      const allButtonsDetailFilm =
+        document.querySelectorAll(".modalDetailButton");
+      allButtonsDetailFilm.forEach((e) => {
+        e.addEventListener("click", (e) => {
+          const imdbID = e.target.getAttribute("data-imdbId");
+          fetch("http://www.omdbapi.com/?apikey=b3236382&i=" + imdbID)
+            .then((response) => response.json())
+            .then((m) => {
+              const movieDetail = cetakDataFilm("cetakDetailFilm", m);
+              document.querySelector(".modal-body").innerHTML = movieDetail;
+            });
         });
       });
-    },
-    (e) => {
-      console.error(e.reponseText);
-    }
-  );
+    });
 });
