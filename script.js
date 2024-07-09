@@ -46,14 +46,29 @@ function cetakDataFilm(jenisCetak, dataFilm) {
 searchButton.addEventListener("click", async function (e) {
   const valueInputKeyword =
     "http://www.omdbapi.com/?apikey=b3236382&s=" + inputKeyword.value;
-  const movies = await getMovies(valueInputKeyword);
-  updateUi(movies);
+  try {
+    const movies = await getMovies(valueInputKeyword);
+    updateUi(movies);
+  } catch (error) {
+    console.log(error);
+    alert(error);
+  }
 });
 
 function getMovies(valueInputKeyword) {
   return fetch(valueInputKeyword)
-    .then((responsens) => responsens.json())
-    .then((response) => response.Search);
+    .then((responsens) => {
+      if (!responsens.ok) {
+        throw new Error(responsens.status);
+      }
+      return responsens.json();
+    })
+    .then((response) => {
+      if (response.Response === "false") {
+        throw new Error(response.Error);
+      }
+      return response.Search;
+    });
 }
 
 function updateUi(movies) {
@@ -68,9 +83,12 @@ function updateUi(movies) {
 document.addEventListener("click", async function (e) {
   if (e.target.classList.contains("modalDetailButton")) {
     const imdbID = e.target.dataset.imdbid;
-    const movieDetail = await getMovieDetail(imdbID);
-    console.log(imdbID);
-    updateUiDetail(movieDetail);
+    try {
+      const movieDetail = await getMovieDetail(imdbID);
+      updateUiDetail(movieDetail);
+    } catch (error) {
+      console.log(error);
+    }
   }
 });
 
